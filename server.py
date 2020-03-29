@@ -4,7 +4,6 @@ from flask import jsonify
 from flask import request
 import json
 import sqlite3
-from dataManager import initDb
 from dbDataInterface import dbDataInterface
 
 app = Flask(__name__)
