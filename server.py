@@ -2,12 +2,15 @@
 from flask import Flask
 from flask import jsonify
 from flask import request
+import json
 import sqlite3
 from dataManager import initDb
+from dbDataInterface import dbDataInterface
 
 app = Flask(__name__)
 
 dbname = 'codevscovid.sqlite'
+
 
 empDB=[
  {
@@ -24,14 +27,54 @@ empDB=[
 
 dbname = 'codevscovid.sqlite'
 
-@app.route('/empdb/employee',methods=['GET'])
-def getAllEmp():
-    return jsonify({'emps':empDB})
+@app.route('/getinfectedvisits',methods=['GET'])
+def getInfectedVisits():
+    di = dbDataInterface(dbname)
+    di.connect()
+    return jsonify(di.getInfectedVisits())
 
-@app.route('/empdb/employee/<empId>',methods=['GET'])
-def getEmp(empId):
-    usr = [ emp for emp in empDB if (emp['id'] == empId) ]
-    return jsonify({'emp':usr})
+@app.route('/getusers',methods=['GET'])
+def getUsers():
+    di = dbDataInterface(dbname)
+    di.connect()
+    return jsonify(di.getUsers())
+
+@app.route('/getinfectedvisitsofuser',methods=['POST'])
+def getInfectedVisitsOfUser():
+    di = dbDataInterface(dbname)
+    di.connect()
+    return jsonify(di.getInfectedVisitsOfUser(request.json['userId']))
+
+@app.route('/getuseridorcreateit',methods=['POST'])
+def getUserIdOrCreateIt():
+    di = dbDataInterface(dbname)
+    di.connect()
+    userId = di.getUserIdOrCreateIt(request.json['email'])
+    return jsonify({'id':userId})
+
+@app.route('/updateuserid',methods=['POST'])
+def updateUserId():
+    di = dbDataInterface(dbname)
+    di.connect()
+    di.updateUserId(request.json['userId'],request.json['infectionTime'])
+    return ''
+
+@app.route('/addactivities',methods=['POST'])
+def addActivities():
+    di = dbDataInterface(dbname)
+    di.connect()
+    activityList = request.json['data']
+    di.addActivities(activityList)
+    return ''
+
+@app.route('/getvisitlistbyuseridwithdatetime',methods=['POST'])
+def getVisitListByUserIdWithDatetime():
+    di = dbDataInterface(dbname)
+    di.connect()
+
+    return jsonify(di.getVisitListByUserIdWithDatetime(request.json['userId']))
+
+
 
 @app.route('/empdb/employee',methods=['POST'])
 def createEmp():
@@ -45,5 +88,8 @@ def createEmp():
 
 if __name__ == '__main__':
     app.debug = True
-    initDb(dbname)
+
+    di = dbDataInterface(dbname)
+    di.connect()
+    di.initDb()
     app.run()

@@ -1,4 +1,5 @@
 import sqlite3
+import json
 from timeManager import datetime2ms, ms2datetime, ms2str
 class dbDataInterface:
     dbname = ''
@@ -47,6 +48,24 @@ class dbDataInterface:
 
             if len(d) > 1: nMoreThanOneType = nMoreThanOneType + 1
         return (nPlaceVisit,nActiveSegments,nMoreThanOneType)
+
+    def getUsers(self):
+        if self.cur is None: raise Exception('connection', 'connection needed')
+        cur = self.cur
+        cur.execute('SELECT * FROM User')
+        users = cur.fetchall()
+        userList = [];
+        for user in users:
+            if user[2] is None:
+                infectionTime = ''
+            else:
+                infectionTime = ms2str(user[2])
+            userList.append({
+                'id':user[0],
+                'email':user[1],
+                'infectionTime':infectionTime
+            })
+        return userList
 
     def getUserIdOrCreateIt(self,email):
         if self.cur is None: raise Exception('connection', 'connection needed')
@@ -133,6 +152,7 @@ class dbDataInterface:
         cur = self.cur
         for activity in activityList:
             self.addActivity(activity)
+
     def getVisitListByUserIdWithDatetime(self,userId):
         if self.cur is None: raise Exception('connection', 'connection needed')
         cur = self.cur
@@ -145,5 +165,47 @@ class dbDataInterface:
                  'startTimeStr':ms2str(visit[2]),
                  'stopTimeStr':ms2str(visit[3]),
                  'locationId':visit[4]
+            })
+        return listVisit
+
+    def getSqlInfectedVisits(self):
+        return '''SELECT  vInfected.id AS vInfectedId, uInfected.id AS uInfectedId, vInfected.startTime AS vInfectedstartTime, vInfected.stopTime AS vInfectedstopTime, vInfected.locationId AS vInfectedLocationId
+            FROM Visit AS vInfected
+            JOIN User AS uInfected ON vInfected.userId = uInfected.id
+            WHERE uInfected.infectionTime<>'' '''
+
+    def getInfectedVisits(self):
+        if self.cur is None: raise Exception('connection', 'connection needed')
+        cur = self.cur
+        cur.execute(self.getSqlInfectedVisits())
+        visits = cur.fetchall()
+        listVisit = [];
+        for visit in visits:
+            listVisit.append({
+                'vInfected.id':visit[0],'uInfected.id':visit[1],
+                 'vInfected.startTime':ms2str(visit[2]),
+                 'vInfected.stopTime':ms2str(visit[3]),
+                 'vInfected.locationId':visit[4]
+            })
+        return listVisit
+
+    def getInfectedVisitsOfUser(self,userId):
+        if self.cur is None: raise Exception('connection', 'connection needed')
+        cur = self.cur
+        cur.execute('''SELECT vQuery.id, vInfectedId, uInfectedId, vInfectedstartTime, vInfectedstopTime, vInfectedLocationId
+            FROM('''+self.getSqlInfectedVisits()+
+                ''')
+            JOIN Visit AS vQuery
+            WHERE vQuery.userId = ?
+            AND NOT( vQuery.startTime>vInfectedstopTime OR vQuery.stopTime<vInfectedstartTime)
+            AND vQuery.locationId =  vInfectedLocationId''',(userId,))
+        visits = cur.fetchall()
+        listVisit = [];
+        for visit in visits:
+            listVisit.append({
+                'vQuery.id':visit[0],'vInfectedId':visit[1],'uInfectedId':visit[2],
+                 'vInfectedstartTime':ms2str(visit[3]),
+                 'vInfectedstopTime':ms2str(visit[4]),
+                 'vInfectedLocationId':visit[5]
             })
         return listVisit

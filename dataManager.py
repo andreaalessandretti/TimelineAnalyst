@@ -60,6 +60,7 @@ def getMyInfectedVisits(cur,userId):
         WHERE vQuery.userId = ?
         AND NOT( vQuery.startTime>vInfectedstopTime OR vQuery.stopTime<vInfectedstartTime)
         AND vQuery.locationId =  vInfectedLocationId''',(userId,))
+
     return cur.fetchall()
 def initDb(dbname):
     try:

@@ -1,15 +1,27 @@
 
 from timeManager import datetime2ms, ms2datetime
-#from dataManager import di.updateUserId, di.getUserIdOrCreateIt, getMyInfectedVisits, addActivity, addActivities, di.getVisitListByUserIdWithDatetime
 from datetime import datetime
-from plotUtils import plotActivitiesList
+from plotUtils import plotActivitiesList, plotInfectedActivitiesList, plotInfectedUserVisitList
 import sqlite3
 from dbDataInterface import dbDataInterface
+from serverDataInterface import serverDataInterface
 
-di = dbDataInterface('codevscovid.sqlite')
-di.connect()
+from dbDataInterface import dbDataInterface
+
+#di = dbDataInterface('codevscovid.sqlite')
+#di.connect()
+#di.initDb()
+
+di = serverDataInterface('http://127.0.0.1:5000/')
+
 
 '''
+Initialization DataInterface
+'''
+
+'''
+Test Data Loading
+
     Pippo is infected and passed in two places
     Pluto not passed for any palces in common with others
     Paperino passed where pluto passed but in a different timedelta
@@ -26,6 +38,7 @@ Gastone   |-3-|       |-2-|          => Probable Infected
 '''
 
 userIdPippo = di.getUserIdOrCreateIt('pippo@pippo.com')
+
 di.updateUserId(userIdPippo,datetime2ms( datetime.strptime('2020-03-13T10:00', '%Y-%m-%dT%H:%M')))
 userIdPluto = di.getUserIdOrCreateIt('pluto@pluto.com')
 userIdPaperino = di.getUserIdOrCreateIt('paperino@paperino.com')
@@ -82,24 +95,50 @@ di.addActivities(
 }]
 )
 
-#json.dumps(list)
 
-print('Pippo\'s Visits ( userid:',userIdPippo,')')
+'''
+Test data featching
+'''
+
+print('\nPippo\'s Visits ( userid:',userIdPippo,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPippo)
+print(activitiesList)
 plotActivitiesList(activitiesList)
 
-print('Pluto\'s Visits ( userid:',userIdPluto,')')
+print('\nPluto\'s Visits ( userid:',userIdPluto,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPluto)
 plotActivitiesList(activitiesList)
 
-print('Paperino\'s Visits ( userid:',userIdPaperino,')')
+print('\nPaperino\'s Visits ( userid:',userIdPaperino,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPaperino)
 plotActivitiesList(activitiesList)
 
-print('Paperone\'s Visits ( userid:',userIdPaperone,')')
+print('\nPaperone\'s Visits ( userid:',userIdPaperone,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPaperone)
 plotActivitiesList(activitiesList)
 
-print('Gastone\'s Visits ( userid:',userIdGastone,')')
+print('\nGastone\'s Visits ( userid:',userIdGastone,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdGastone)
 plotActivitiesList(activitiesList)
+
+'''
+Test core queries
+'''
+
+#Return infected visits
+print('\nInfected Activities')
+visitList = di.getInfectedVisits()
+plotInfectedActivitiesList(visitList)
+
+
+userList = di.getUsers()
+
+if userList is None: exit()
+for user in userList:
+    print()
+    print('User: ',user)
+    print('Infected visits:')
+    plotInfectedUserVisitList(di.getInfectedVisitsOfUser(int(user['id'])))
+
+
+#TODO: If a new potential infected is fount, we should notify the other potential affected
