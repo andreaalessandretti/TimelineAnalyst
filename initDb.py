@@ -1,6 +1,6 @@
-import sqlite3
-from dataManager import initDb
 
-dbname = 'codevscovid.sqlite'
+from dbDataInterface import dbDataInterface
 
-initDb(dbname)
+di = dbDataInterface('codevscovid.sqlite')
+di.connect()
+di.initDb()

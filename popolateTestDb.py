@@ -1,14 +1,13 @@
 
 from timeManager import datetime2ms, ms2datetime
-from dataManager import updateUserId, getUserIdOrCreateIt, getMyInfectedVisits, addActivity, addActivities, getVisitListByUserIdWithDatetime
+#from dataManager import di.updateUserId, di.getUserIdOrCreateIt, getMyInfectedVisits, addActivity, addActivities, di.getVisitListByUserIdWithDatetime
 from datetime import datetime
 from plotUtils import plotActivitiesList
 import sqlite3
+from dbDataInterface import dbDataInterface
 
-dbname = 'codevscovid.sqlite'
-
-conn = sqlite3.connect(dbname)
-cur = conn.cursor()
+di = dbDataInterface('codevscovid.sqlite')
+di.connect()
 
 '''
     Pippo is infected and passed in two places
@@ -26,15 +25,15 @@ Gastone   |-3-|       |-2-|          => Probable Infected
 
 '''
 
-userIdPippo = getUserIdOrCreateIt('pippo@pippo.com',cur)
-updateUserId(userIdPippo,datetime2ms( datetime.strptime('2020-03-13T10:00', '%Y-%m-%dT%H:%M')),cur)
-userIdPluto = getUserIdOrCreateIt('pluto@pluto.com',cur)
-userIdPaperino = getUserIdOrCreateIt('paperino@paperino.com',cur)
-userIdPaperone = getUserIdOrCreateIt('paperone@paperone.com',cur)
-updateUserId(userIdPaperone,datetime2ms( datetime.strptime('2020-03-13T10:00', '%Y-%m-%dT%H:%M')),cur)
-userIdGastone = getUserIdOrCreateIt('gastone@gastone.com',cur)
+userIdPippo = di.getUserIdOrCreateIt('pippo@pippo.com')
+di.updateUserId(userIdPippo,datetime2ms( datetime.strptime('2020-03-13T10:00', '%Y-%m-%dT%H:%M')))
+userIdPluto = di.getUserIdOrCreateIt('pluto@pluto.com')
+userIdPaperino = di.getUserIdOrCreateIt('paperino@paperino.com')
+userIdPaperone = di.getUserIdOrCreateIt('paperone@paperone.com')
+di.updateUserId(userIdPaperone,datetime2ms( datetime.strptime('2020-03-13T10:00', '%Y-%m-%dT%H:%M')))
+userIdGastone = di.getUserIdOrCreateIt('gastone@gastone.com')
 
-addActivities(cur,
+di.addActivities(
 [{
 'userId':userIdPippo,
 'locationId':1,
@@ -83,25 +82,24 @@ addActivities(cur,
 }]
 )
 
+#json.dumps(list)
+
 print('Pippo\'s Visits ( userid:',userIdPippo,')')
-activitiesList = getVisitListByUserIdWithDatetime(cur,userIdPippo)
+activitiesList = di.getVisitListByUserIdWithDatetime(userIdPippo)
 plotActivitiesList(activitiesList)
 
 print('Pluto\'s Visits ( userid:',userIdPluto,')')
-activitiesList = getVisitListByUserIdWithDatetime(cur,userIdPluto)
+activitiesList = di.getVisitListByUserIdWithDatetime(userIdPluto)
 plotActivitiesList(activitiesList)
 
 print('Paperino\'s Visits ( userid:',userIdPaperino,')')
-activitiesList = getVisitListByUserIdWithDatetime(cur,userIdPaperino)
+activitiesList = di.getVisitListByUserIdWithDatetime(userIdPaperino)
 plotActivitiesList(activitiesList)
 
 print('Paperone\'s Visits ( userid:',userIdPaperone,')')
-activitiesList = getVisitListByUserIdWithDatetime(cur,userIdPaperone)
+activitiesList = di.getVisitListByUserIdWithDatetime(userIdPaperone)
 plotActivitiesList(activitiesList)
 
 print('Gastone\'s Visits ( userid:',userIdGastone,')')
-activitiesList = getVisitListByUserIdWithDatetime(cur,userIdGastone)
+activitiesList = di.getVisitListByUserIdWithDatetime(userIdGastone)
 plotActivitiesList(activitiesList)
-
-conn.commit()
-cur.close()
