@@ -8,11 +8,11 @@ from serverDataInterface import serverDataInterface
 
 from dbDataInterface import dbDataInterface
 
-#di = dbDataInterface('codevscovid.sqlite')
-#di.connect()
-#di.initDb()
+di = dbDataInterface('codevscovid.sqlite')
+di.connect()
+di.initDb()
 
-di = serverDataInterface('http://127.0.0.1:5000/')
+#di = serverDataInterface('http://127.0.0.1:5000/')
 
 
 '''
@@ -49,47 +49,47 @@ userIdGastone = di.getUserIdOrCreateIt('gastone@gastone.com')
 di.addActivities(
 [{
 'userId':userIdPippo,
-'locationId':1,
+'placeId':'uno','name':'casa','address':'via',
 'startTime':datetime2ms( datetime.strptime('2020-03-1T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-3T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPippo,
-'locationId':2,
+'placeId':'due','name':'casa2','address':'via2',
 'startTime':datetime2ms( datetime.strptime('2020-03-07T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-09T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPluto,
-'locationId': 3,
+'placeId':'tre','name':'casa3','address':'via3',
 'startTime':datetime2ms( datetime.strptime('2020-03-01T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-03T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPluto,
-'locationId':4,
+'placeId':'quattro','name':'casa4','address':'via4',
 'startTime':datetime2ms( datetime.strptime('2020-03-10T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-11T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPaperino,
-'locationId':1,
+'placeId':'uno','name':'casa','address':'via',
 'startTime':datetime2ms( datetime.strptime('2020-03-04T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-06T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPaperino,
-'locationId':4,
+'placeId':'quattro','name':'casa4','address':'via4',
 'startTime':datetime2ms( datetime.strptime('2020-03-10T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-11T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPaperone,
-'locationId':4,
+'placeId':'quattro','name':'casa4','address':'via4',
 'startTime':datetime2ms( datetime.strptime('2020-03-07T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-09T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdGastone,
-'locationId':3,
+'placeId':'tre','name':'casa3','address':'via3',
 'startTime':datetime2ms( datetime.strptime('2020-03-01T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-03T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdGastone,
-'locationId':2,
+'placeId':'due','name':'casa2','address':'via2',
 'startTime':datetime2ms( datetime.strptime('2020-03-07T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-09T10:00', '%Y-%m-%dT%H:%M'))
 }]
@@ -130,7 +130,6 @@ print('\nInfected Activities')
 visitList = di.getInfectedVisits()
 plotInfectedActivitiesList(visitList)
 
-
 userList = di.getUsers()
 
 if userList is None: exit()
@@ -138,7 +137,9 @@ for user in userList:
     print()
     print('User: ',user)
     print('Infected visits:')
-    plotInfectedUserVisitList(di.getInfectedVisitsOfUser(int(user['id'])))
+    l = di.getInfectedVisitsOfUser(int(user['id']))
+    print(l)
+    plotInfectedUserVisitList(l)
 
 
 #TODO: If a new potential infected is fount, we should notify the other potential affected

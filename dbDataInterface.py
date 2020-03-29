@@ -19,36 +19,6 @@ class dbDataInterface:
         self.conn = sqlite3.connect(self.dbname)
         self.cur = self.conn.cursor()
 
-    def addTimeLine(self,timelineObjects,expirationDays,userId):#data['timelineObjects']
-        if self.cur is None: raise Exception('connection', 'connection needed')
-        cur = self.cur
-
-        nActiveSegments  = 0
-        nPlaceVisit = 0
-        nMoreThanOneType = 0
-        now = datetime.now()
-        print('NOW:',now)
-        for d in timelineObjects:
-            if 'activitySegment' in d: nActiveSegments = nActiveSegments + 1
-            if 'placeVisit' in d:
-                visit = d['placeVisit']
-                nPlaceVisit = nPlaceVisit + 1
-                startTimeMs = int(visit['duration']['startTimestampMs'])
-                endTimeMs = int(visit['duration']['startTimestampMs'])
-
-                ageVisit = now-datetime.fromtimestamp(startTimeMs/1000)
-
-                if ageVisit>expirationDays:
-                    print(ageVisit,'DISCARDED')
-                else:
-                    visitTuple = (userId, startTimeMs, endTimeMs, visit['location']['placeId'])
-                    cur.execute('''INSERT INTO Visit (userId, startTime, stopTime,locationId)
-                                    VALUES (?, ?, ?, ?)''', visitTuple)
-                    print('added',visitTuple)
-
-            if len(d) > 1: nMoreThanOneType = nMoreThanOneType + 1
-        return (nPlaceVisit,nActiveSegments,nMoreThanOneType)
-
     def getUsers(self):
         if self.cur is None: raise Exception('connection', 'connection needed')
         cur = self.cur
@@ -67,6 +37,20 @@ class dbDataInterface:
             })
         return userList
 
+    def getLocationIdOrCreateIt(self,data):
+        if self.cur is None: raise Exception('connection', 'connection needed')
+        cur = self.cur
+        cur.execute('SELECT * FROM Location WHERE placeId = ? ', (data['placeId'],))
+        row = cur.fetchone()
+        if row is None:
+            cur.execute('''INSERT INTO Location (placeId,name,address)
+                    VALUES (:placeId,:name,:address)''', (data))
+            userId = cur.lastrowid;
+            print('Email added wirh id:',userId)
+        else:
+            print('Email already existing')
+            userId = row[0]
+        return userId
     def getUserIdOrCreateIt(self,email):
         if self.cur is None: raise Exception('connection', 'connection needed')
         cur = self.cur
@@ -116,8 +100,12 @@ class dbDataInterface:
 
             cur.execute('''
                 CREATE TABLE "Location" (
-            	"id"	TEXT NOT NULL UNIQUE,
+            	"id"	INTEGER NOT NULL UNIQUE,
+                "placeId" TEXT,
+                "name" TEXT,
+                "address" TEXT,
             	PRIMARY KEY("id"))''')
+
             cur.execute('''
                 CREATE TABLE "Visit" (
             	"id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -145,6 +133,7 @@ class dbDataInterface:
         cur = self.cur
     #    cur.execute('''INSERT INTO Visit (userId,startTime,stopTime,locationId) VALUES (?,?,?,?)''',
     #        (data['userId'], data['startTime'], data['stopTime'], data['locationId']))
+        data['locationId'] = self.getLocationIdOrCreateIt({'placeId':data['placeId'],'name':data['name'],'address':data['address']})
         cur.execute('''INSERT INTO Visit (userId,startTime,stopTime,locationId) VALUES (:userId,:startTime,:stopTime,:locationId)''',data)
 
     def addActivities(self,activityList):
@@ -156,22 +145,26 @@ class dbDataInterface:
     def getVisitListByUserIdWithDatetime(self,userId):
         if self.cur is None: raise Exception('connection', 'connection needed')
         cur = self.cur
-        cur.execute('SELECT * FROM Visit WHERE userId = ? ', (userId,))
+        cur.execute('''
+        SELECT l.name AS name, l.address AS address,v.startTime AS startTimeMs, v.stopTime AS stopTimeMs  FROM Visit AS v
+            JOIN Location AS l ON l.id = v.locationId
+            WHERE userId = ? ''', (userId,))
         visits = cur.fetchall()
         listVisit = [];
         for visit in visits:
             listVisit.append({
-                'id':visit[0],'userId':visit[1],
+                'name':visit[0],
+                'address':visit[1],
                  'startTimeStr':ms2str(visit[2]),
-                 'stopTimeStr':ms2str(visit[3]),
-                 'locationId':visit[4]
+                 'stopTimeStr':ms2str(visit[3])
             })
         return listVisit
 
     def getSqlInfectedVisits(self):
-        return '''SELECT  vInfected.id AS vInfectedId, uInfected.id AS uInfectedId, vInfected.startTime AS vInfectedstartTime, vInfected.stopTime AS vInfectedstopTime, vInfected.locationId AS vInfectedLocationId
+        return '''SELECT  l.name AS name, l.address AS address, vInfected.id AS vInfectedId, uInfected.id AS uInfectedId, vInfected.startTime AS vInfectedstartTime, vInfected.stopTime AS vInfectedstopTime, vInfected.locationId AS vInfectedLocationId
             FROM Visit AS vInfected
             JOIN User AS uInfected ON vInfected.userId = uInfected.id
+            JOIN Location AS l ON vInfected.locationId = l.id
             WHERE uInfected.infectionTime<>'' '''
 
     def getInfectedVisits(self):
@@ -188,17 +181,18 @@ class dbDataInterface:
                  'vInfected.locationId':visit[4]
             })
         return listVisit
+    def getSqlInfectedVisitsOfUserAfterSELECT(self):
+        return '''FROM('''+self.getSqlInfectedVisits()+ ''')
+        JOIN Visit AS vQuery
+        WHERE vQuery.userId = ?
+        AND NOT( vQuery.startTime>vInfectedstopTime OR vQuery.stopTime<vInfectedstartTime)
+        AND vQuery.locationId =  vInfectedLocationId'''
 
     def getInfectedVisitsOfUser(self,userId):
         if self.cur is None: raise Exception('connection', 'connection needed')
         cur = self.cur
-        cur.execute('''SELECT vQuery.id, vInfectedId, uInfectedId, vInfectedstartTime, vInfectedstopTime, vInfectedLocationId
-            FROM('''+self.getSqlInfectedVisits()+
-                ''')
-            JOIN Visit AS vQuery
-            WHERE vQuery.userId = ?
-            AND NOT( vQuery.startTime>vInfectedstopTime OR vQuery.stopTime<vInfectedstartTime)
-            AND vQuery.locationId =  vInfectedLocationId''',(userId,))
+        cur.execute('''SELECT vQuery.id, vInfectedId, uInfectedId, vInfectedstartTime, vInfectedstopTime, vInfectedLocationId, name, address
+            '''+self.getSqlInfectedVisitsOfUserAfterSELECT(),(userId,))
         visits = cur.fetchall()
         listVisit = [];
         for visit in visits:
@@ -206,6 +200,23 @@ class dbDataInterface:
                 'vQuery.id':visit[0],'vInfectedId':visit[1],'uInfectedId':visit[2],
                  'vInfectedstartTime':ms2str(visit[3]),
                  'vInfectedstopTime':ms2str(visit[4]),
-                 'vInfectedLocationId':visit[5]
+                 'vInfectedLocationId':visit[5],
+                 'name':visit[6],
+                 'address':visit[7]
+            })
+        return listVisit
+
+    def getInfectedVisitsOfUserShort(self,userId):
+        if self.cur is None: raise Exception('connection', 'connection needed')
+        cur = self.cur
+        cur.execute('''SELECT name, address, vInfectedstartTime, vInfectedstopTime
+            '''+self.getSqlInfectedVisitsOfUserAfterSELECT(),(userId,))
+        visits = cur.fetchall()
+        listVisit = [];
+        for visit in visits:
+            listVisit.append({
+                'name':visit[0],'address':visit[1],
+                 'vInfectedstartTime':ms2str(visit[2]),
+                 'vInfectedstopTime':ms2str(visit[3])
             })
         return listVisit

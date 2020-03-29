@@ -13,7 +13,6 @@ class serverDataInterface:
         self.cur = self.conn.cursor()
 
     def getUserIdOrCreateIt(self,email):
-
         r = requests.post(url = self.url+'/getuseridorcreateit', json = {'email':email})
         data = r.json()
         return data['id']
@@ -36,6 +35,7 @@ class serverDataInterface:
         r = requests.get(url = self.url+'/getusers')
         return r.json()
 
-    def getInfectedVisitsOfUser(self,userId):
-        r = requests.post(url = self.url+'/getinfectedvisitsofuser', json = {'userId':userId})
+    def getInfectedVisitsOfUserShort(self,userId):
+        r = requests.post(url = self.url+'/getinfectedvisitsofusershort', json = {'userId':userId})
+
         return r.json()

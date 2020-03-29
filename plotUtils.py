@@ -1,11 +1,11 @@
 def plotActivitiesList(activitiesList):
-    formatVisitTable = "{:<8} {:<8} {:<10} {:<20} {:<20}"
-    print (formatVisitTable.format('id','userId','locationId','startTimeStr','stopTimeStr'))
+    formatVisitTable = "{:<8} {:<10} {:<20} {:<20}"
+    print (formatVisitTable.format('name','address','startTimeStr','stopTimeStr'))
     if activitiesList is None: return
     for i in range(len(activitiesList)):
          print (formatVisitTable.format(
-            activitiesList[i]['id'],activitiesList[i]['userId'], activitiesList[i]['locationId'],
-            activitiesList[i]['startTimeStr'],activitiesList[i]['stopTimeStr']))
+            activitiesList[i]['name'],activitiesList[i]['address'], activitiesList[i]['startTimeStr'],
+            activitiesList[i]['stopTimeStr']))
 
 def plotInfectedActivitiesList(activitiesList):
     formatVisitTable = "{:<16} {:<16} {:<20} {:<40} {:<40}"
