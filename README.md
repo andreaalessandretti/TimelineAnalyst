@@ -1,4 +1,4 @@
-<div style="text-align:center"><img src="mlogo.png" /></div>
+<div style="text-align:center"><img src="mlogo.png" height=300/></div>
 
 **Early identification** and **social distancing** are _essential_ to reduce the spread of the virus.
 
