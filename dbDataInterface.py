@@ -170,7 +170,7 @@ class dbDataInterface:
     def getCoundedInfectedLocation(self):
         if self.cur is None: raise Exception('connection', 'connection needed')
         cur = self.cur
-        cur.execute('SELECT COUNT(*) AS nPositiveVisits, name, address FROM('+self.getSqlInfectedVisits()+') GROUP BY vInfectedLocationId')
+        cur.execute('SELECT COUNT(*) AS nPositiveVisits, name, address FROM('+self.getSqlInfectedVisits()+') GROUP BY vInfectedLocationId ORDER BY nPositiveVisits DESC' )
         locations = cur.fetchall()
         listLocations = [];
         for location in locations:

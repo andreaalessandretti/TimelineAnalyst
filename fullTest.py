@@ -99,7 +99,7 @@ di.addActivities(inputVisits)
 print('Input data')
 
 print(plotUtils.plotInputVisitListShort(inputVisits))
-exit()
+
 '''
 Test data featching
 '''

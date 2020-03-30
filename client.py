@@ -116,28 +116,26 @@ for file in fileList:
                 'stopTime':tlObj['placeVisit']['duration']['endTimestampMs']
                 })
 
-print(plotUtils.plotInputVisitListShort(visitsList))
-
 logFile.write(plotUtils.plotInputVisitListShort(visitsList))
 
 if len(visitsList)>0: di.addActivities(visitsList)
 print()
-print('Number of location added:',len(visitsList))
+print('Number of added locations:',len(visitsList))
 logFile.write('\r\n Number of location added: %d' % len(visitsList))
 print()
 if userIsPositive:
+    print()
     print('Thanks for contribuiting.')
     print()
 else:
     activitiesList = di.getInfectedVisitsOfUserShort(userId)
-    print(plotUtils.plotInfectedUserVisitListShort(activitiesList))
     locationFile = open("log_contact_times.txt","w")
     locationFile.write(plotUtils.plotInfectedUserVisitListShort(activitiesList))
-
 
     print()
     logFile.write('\r\n Number of times this timeline crossed the timeline of a positive user: %d' % len(activitiesList))
     print('Number of times this timeline crossed the timeline of a positive user:',len(activitiesList))
     if len(activitiesList)>0:
+        print()
         print('Check the file \\contact_times.txt from more details about the crossing locations.')
     print()
