@@ -1,18 +1,20 @@
 
 from timeManager import datetime2ms, ms2datetime
 from datetime import datetime
-from plotUtils import plotActivitiesList, plotInfectedActivitiesList, plotInfectedUserVisitList
+from plotUtils import plotActivitiesList, plotInfectedActivitiesList, plotInfectedUserVisitList, plotInfectedUserVisitListShort
 import sqlite3
 from dbDataInterface import dbDataInterface
 from serverDataInterface import serverDataInterface
 
 from dbDataInterface import dbDataInterface
 
-di = dbDataInterface('codevscovid.sqlite')
-di.connect()
-di.initDb()
-
-#di = serverDataInterface('http://127.0.0.1:5000/')
+dbTestOnly = 1
+if dbTestOnly:
+    di = dbDataInterface('codevscovid.sqlite')
+    di.connect()
+    di.initDb()
+else:
+    di = serverDataInterface('http://127.0.0.1:5000/')
 
 
 '''
@@ -137,9 +139,10 @@ for user in userList:
     print()
     print('User: ',user)
     print('Infected visits:')
-    l = di.getInfectedVisitsOfUser(int(user['id']))
-    print(l)
-    plotInfectedUserVisitList(l)
+    if dbTestOnly:
+        plotInfectedUserVisitList(di.getInfectedVisitsOfUser(int(user['id'])))
+    else:
+        plotInfectedUserVisitListShort(di.getInfectedVisitsOfUserShort(int(user['id'])))
 
 
 #TODO: If a new potential infected is fount, we should notify the other potential affected

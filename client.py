@@ -44,7 +44,7 @@ if path.exists('temp'):
     print()
 if path.exists('temp'):
     print()
-    print('Using data in existing \\temp folder.')
+    print('Using data in the existing \\temp folder.')
     print()
 else:
     #https://takeout.google.com/settings/takeout/custom/location_history
@@ -55,17 +55,14 @@ else:
     with ZipFile(filename, 'r') as zipObj:
        zipObj.extractall('temp')
 
-
-
 expirationDays = timedelta(days=int(expDays))
 today = datetime.today()
 now = datetime.now()
 userId = di.getUserIdOrCreateIt(email)
-logFile.write('UserId : %d \r\n'% userId)
 
 if userIsPositive:
     di.updateUserId(userId,datetime2ms(now))
-    logFile.write('Update user as infected.\r\n')
+    logFile.write('Update user as positive.\r\n')
 
 logFile.write('Now : %s \r\n'% str(now))
 
@@ -96,7 +93,7 @@ for file in fileList:
             ageVisit = now-datetime.fromtimestamp(startTimeMs/1000)
             if ageVisit<expirationDays:
                 logFile.write('\r\n')
-                logFile.write('placeId : %s \r\n'% str(tlObj['placeVisit']['location']['placeId']))
+                #logFile.write('placeId : %s \r\n'% str(tlObj['placeVisit']['location']['placeId']))
                 logFile.write('name : %s \r\n'% str(tlObj['placeVisit']['location']['name']))
                 logFile.write('address : \r\n %s \r\n'% str(tlObj['placeVisit']['location']['address']))
                 logFile.write('startTime : %s \r\n'% ms2str(startTimeMs))
@@ -123,7 +120,7 @@ else:
     if len(activitiesList)>0:
         locationFile = open("log_contact_times.txt","w")
         for i in range(len(activitiesList)):
-            locationFile.write('\r\n ## %d\r\n'%i)
+            locationFile.write('\r\n ## %d\r\n'%(i+1))
             locationFile.write('Name: %s\r\n'% activitiesList[i]['name'])
             locationFile.write('Address: \r\n%s\r\n'% activitiesList[i]['address'])
             locationFile.write('TimeStart: %s\r\n'% activitiesList[i]['vInfectedstartTime'])

@@ -28,3 +28,15 @@ def plotInfectedUserVisitList(activitiesList):
             activitiesList[i]['uInfectedId'],
             activitiesList[i]['vInfectedstartTime'],
             activitiesList[i]['vInfectedstopTime']))
+
+def plotInfectedUserVisitListShort(activitiesList):
+    formatVisitTable = "{:<16} {:<16} {:<40} {:<40}"
+    print('-'*(16+16+40+40) )
+    print (formatVisitTable.format('name', 'address', 'vInfectedstartTime', 'vInfectedstopTime' ))
+    if activitiesList is None: return
+    for i in range(len(activitiesList)):
+         print (formatVisitTable.format(
+            activitiesList[i]['name'],
+            activitiesList[i]['address'],
+            activitiesList[i]['vInfectedstartTime'],
+            activitiesList[i]['vInfectedstopTime']))
