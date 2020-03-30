@@ -1,3 +1,5 @@
+<div style="text-align:center"><img src="logo.png" /></div>
+
 **Early identification** and **social distancing** are _essential_ to reduce the spread of the virus.
 
 * What can we do if we are tested positive?
@@ -10,11 +12,11 @@
 ## Dependences
 **TimelineAnalyst** requires [Python](https://www.python.org/) and [Flask](https://flask.palletsprojects.com/en/1.1.x/) to be installed.
 ## Getting started!
-You can see the video '2 min Pitch + demo (5 min)' below that illustrate how to use the framework.
+You can see the video '2 min Pitch + DEMO (5 min)' below that illustrate how to use the framework.
 
 ## Videos
-# 2 min Pitch: https://youtu.be/59xqVFVcyfY
+* 2 min Pitch:
 [![ ](http://img.youtube.com/vi/59xqVFVcyfY/0.jpg)](http://www.youtube.com/watch?v=59xqVFVcyfY)
 
-# 2 min Pitch + demo (5 min)
+* 2 min Pitch + DEMO (5 min)
 [![ ](http://img.youtube.com/vi/sEH6_WzLkY4/0.jpg)](http://www.youtube.com/watch?v=sEH6_WzLkY4)
