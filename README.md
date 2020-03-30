@@ -10,7 +10,8 @@
 * Check if you crossed in the past a person that was tested positive using your data from Google Map Timeline;
 * Identify the places with and high risk of infection for **people** to avoid them and **governments** to apply ad-hoc measures.
 
-**TimelineAnalyst** was developed for the hackathon [#CodeVsCovid19](https://codevscovid19.devpost.com/).
+**[TimelineAnalyst](https://devpost.com/software/timelineanalyst)** was developed for the hackathon [#CodeVsCovid19](https://
+  codevscovid19.devpost.com/).
 
 ## Dependences
 **TimelineAnalyst** requires [Python](https://www.python.org/) and [Flask](https://flask.palletsprojects.com/en/1.1.x/) to be installed.
