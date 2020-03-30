@@ -26,7 +26,7 @@ python server.py
 ```
 python3 client.py nickname 1 <history length in days> <path to timeline zip file> <server address>
 ```
-where '<path to timeline zip file>' is the path to the Google Map Timeline file (get yours [here](takeout.google.com/settings/takeout/custom/location_history)), '<history length in days>' specify the length of your past timeline to be considered as infected, and '<server address>' is the link to the TimelineAnalyst server.
+where '<path to timeline zip file>' is the path to the Google Map Timeline file (get yours [here](https://takeout.google.com/settings/takeout/custom/location_history), '<history length in days>' specify the length of your past timeline to be considered as infected, and '<server address>' is the link to the TimelineAnalyst server.
 
 * **Check the timeline of a person**          
 ```
