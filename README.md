@@ -9,10 +9,33 @@
 **TimelineAnalyst** allows you to:
 * Check if you crossed in the past a person that was tested positive using your data from Google Map Timeline;
 * Identify the places with and high risk of infection for **people** to avoid them and **governments** to apply ad-hoc measures.
+
+**TimelineAnalyst** was developed for the hackathon [#CodeVsCovid19](https://codevscovid19.devpost.com/).
+
 ## Dependences
 **TimelineAnalyst** requires [Python](https://www.python.org/) and [Flask](https://flask.palletsprojects.com/en/1.1.x/) to be installed.
 ## Getting started!
-You can see the video '2 min Pitch + DEMO (5 min)' below that illustrate how to use the framework.
+See the video '2 min Pitch + DEMO (5 min)' below that illustrates how to setup and use TimelineAnalyst.
+
+Main commands:
+* **Start the TimelineAnalyst server**
+```
+python server.py
+```
+* **TimelineAnalyst client submits a timeline of an infected person**
+```
+python3 client.py nickname 1 <history length in days> <path to timeline zip file> <server address>
+```
+where '<path to timeline zip file>' is the path to the Google Map Timeline file (get yours [here](takeout.google.com/settings/takeout/custom/location_history)), '<history length in days>' specify the length of your past timeline to be considered as infected, and '<server address>' is the link to the TimelineAnalyst server.
+
+* **Check the timeline of a person**          
+```
+python3 client.py nickname 0 <history length in days> <path to timeline zip file> <server address>
+```
+* **Request the list of places visited by infected people**   
+```
+python3 client.py <server address>
+```
 
 ## Videos
 * 2 min Pitch:
