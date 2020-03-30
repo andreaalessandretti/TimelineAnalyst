@@ -1,14 +1,13 @@
 
 from timeManager import datetime2ms, ms2datetime
 from datetime import datetime
-from plotUtils import plotActivitiesList, plotInfectedActivitiesList, plotInfectedUserVisitList, plotInfectedUserVisitListShort
+import plotUtils
 import sqlite3
 from dbDataInterface import dbDataInterface
 from serverDataInterface import serverDataInterface
 
-from dbDataInterface import dbDataInterface
 
-dbTestOnly = 1
+dbTestOnly = False
 if dbTestOnly:
     di = dbDataInterface('codevscovid.sqlite')
     di.connect()
@@ -34,7 +33,7 @@ Timeline  1 2 3 4 5 6 7 8 9 10 11 12 13 March 2020
 Pippo     |-1-|       |-2-|          * Detected infected
 Pluto     |-3-|             |-4-|
 Paperino        |-1-|       |-4-|
-Paperone              |-4-|          * Detected infected
+Paperone              |-1-|          * Detected infected
 Gastone   |-3-|       |-2-|          => Probable Infected
 
 '''
@@ -48,10 +47,10 @@ userIdPaperone = di.getUserIdOrCreateIt('paperone@paperone.com')
 di.updateUserId(userIdPaperone,datetime2ms( datetime.strptime('2020-03-13T10:00', '%Y-%m-%dT%H:%M')))
 userIdGastone = di.getUserIdOrCreateIt('gastone@gastone.com')
 
-di.addActivities(
-[{
+
+inputVisits = [{
 'userId':userIdPippo,
-'placeId':'uno','name':'casa','address':'via',
+'placeId':'uno','name':'casa1','address':'via1',
 'startTime':datetime2ms( datetime.strptime('2020-03-1T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-3T10:00', '%Y-%m-%dT%H:%M'))
 },{
@@ -71,7 +70,7 @@ di.addActivities(
 'stopTime':datetime2ms( datetime.strptime('2020-03-11T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPaperino,
-'placeId':'uno','name':'casa','address':'via',
+'placeId':'uno','name':'casa1','address':'via1',
 'startTime':datetime2ms( datetime.strptime('2020-03-04T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-06T10:00', '%Y-%m-%dT%H:%M'))
 },{
@@ -81,7 +80,7 @@ di.addActivities(
 'stopTime':datetime2ms( datetime.strptime('2020-03-11T10:00', '%Y-%m-%dT%H:%M'))
 },{
 'userId':userIdPaperone,
-'placeId':'quattro','name':'casa4','address':'via4',
+'placeId':'uno','name':'casa1','address':'via1',
 'startTime':datetime2ms( datetime.strptime('2020-03-07T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-09T10:00', '%Y-%m-%dT%H:%M'))
 },{
@@ -95,9 +94,12 @@ di.addActivities(
 'startTime':datetime2ms( datetime.strptime('2020-03-07T10:00', '%Y-%m-%dT%H:%M')),
 'stopTime':datetime2ms( datetime.strptime('2020-03-09T10:00', '%Y-%m-%dT%H:%M'))
 }]
-)
 
+di.addActivities(inputVisits)
+print('Input data')
 
+print(plotUtils.plotInputVisitListShort(inputVisits))
+exit()
 '''
 Test data featching
 '''
@@ -105,32 +107,32 @@ Test data featching
 print('\nPippo\'s Visits ( userid:',userIdPippo,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPippo)
 print(activitiesList)
-plotActivitiesList(activitiesList)
+print(plotUtils.plotActivitiesList(activitiesList))
 
 print('\nPluto\'s Visits ( userid:',userIdPluto,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPluto)
-plotActivitiesList(activitiesList)
+print(plotUtils.plotActivitiesList(activitiesList))
 
 print('\nPaperino\'s Visits ( userid:',userIdPaperino,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPaperino)
-plotActivitiesList(activitiesList)
+print(plotUtils.plotActivitiesList(activitiesList))
 
 print('\nPaperone\'s Visits ( userid:',userIdPaperone,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdPaperone)
-plotActivitiesList(activitiesList)
+print(plotUtils.plotActivitiesList(activitiesList))
 
 print('\nGastone\'s Visits ( userid:',userIdGastone,')')
 activitiesList = di.getVisitListByUserIdWithDatetime(userIdGastone)
-plotActivitiesList(activitiesList)
+print(plotUtils.plotActivitiesList(activitiesList))
 
 '''
 Test core queries
 '''
 
 #Return infected visits
-print('\nInfected Activities')
+print('\nInfected Visits')
 visitList = di.getInfectedVisits()
-plotInfectedActivitiesList(visitList)
+print(plotUtils.plotInfectedActivitiesList(visitList))
 
 userList = di.getUsers()
 
@@ -140,9 +142,9 @@ for user in userList:
     print('User: ',user)
     print('Infected visits:')
     if dbTestOnly:
-        plotInfectedUserVisitList(di.getInfectedVisitsOfUser(int(user['id'])))
+        print(plotUtils.plotInfectedUserVisitList(di.getInfectedVisitsOfUser(int(user['id']))))
     else:
-        plotInfectedUserVisitListShort(di.getInfectedVisitsOfUserShort(int(user['id'])))
+        print(plotUtils.plotInfectedUserVisitListShort(di.getInfectedVisitsOfUserShort(int(user['id']))))
 
-
+print(plotUtils.plotCoundedInfectedLocation(di.getCoundedInfectedLocation()))
 #TODO: If a new potential infected is fount, we should notify the other potential affected

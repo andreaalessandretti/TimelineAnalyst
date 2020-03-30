@@ -31,6 +31,10 @@ class serverDataInterface:
         r = requests.get(url = self.url+'/getinfectedvisits')
         return r.json()
 
+    def getCoundedInfectedLocation(self):
+        r = requests.get(url = self.url+'/getcoundedinfectedlocation')
+        return r.json()
+
     def getUsers(self):
         r = requests.get(url = self.url+'/getusers')
         return r.json()

@@ -167,6 +167,20 @@ class dbDataInterface:
             JOIN Location AS l ON vInfected.locationId = l.id
             WHERE uInfected.infectionTime<>'' '''
 
+    def getCoundedInfectedLocation(self):
+        if self.cur is None: raise Exception('connection', 'connection needed')
+        cur = self.cur
+        cur.execute('SELECT COUNT(*) AS nPositiveVisits, name, address FROM('+self.getSqlInfectedVisits()+') GROUP BY vInfectedLocationId')
+        locations = cur.fetchall()
+        listLocations = [];
+        for location in locations:
+            listLocations.append({
+                'name':location[1],
+                 'address':location[2],
+                 'nPositiveVisits':location[0]
+            })
+        return listLocations
+
     def getInfectedVisits(self):
         if self.cur is None: raise Exception('connection', 'connection needed')
         cur = self.cur

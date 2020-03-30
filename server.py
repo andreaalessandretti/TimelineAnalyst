@@ -18,6 +18,12 @@ def getInfectedVisits():
     di.connect()
     return jsonify(di.getInfectedVisits())
 
+@app.route('/getcoundedinfectedlocation',methods=['GET'])
+def getCoundedInfectedLocation():
+    di = dbDataInterface(dbname)
+    di.connect()
+    return jsonify(di.getCoundedInfectedLocation())
+
 @app.route('/getusers',methods=['GET'])
 def getUsers():
     di = dbDataInterface(dbname)

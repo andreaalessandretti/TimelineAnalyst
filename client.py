@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import plotUtils
 from zipfile import ZipFile
 import os.path
 from os import path
@@ -11,8 +12,21 @@ import json
 from timeManager import ms2str
 from timeManager import datetime2ms, ms2datetime
 
-if not len(sys.argv) == 6:
-    print('usage: python3 client.py <email> <the user is Covid positive (1 if true, 0 otherwise)> <history length> <path to timeline zip file> <server address>')
+if not (len(sys.argv) == 6 or len(sys.argv) == 2):
+    print('''
+        usage:
+            python3 client.py <email> <the user is Covid positive (1 if true, 0 otherwise)> <history length> <path to timeline zip file> <server address>')
+            python3 client.py <server address>'
+    ''')
+    exit()
+
+if len(sys.argv) == 2:
+    serverName = str(sys.argv[1])
+    di = serverDataInterface(serverName)
+    report = plotUtils.plotCoundedInfectedLocation(di.getCoundedInfectedLocation())
+    print(report)
+    logReport = open("log_report.txt","w")
+    logReport.write(report)
     exit()
 
 email = str(sys.argv[1])
@@ -20,6 +34,8 @@ userIsPositive = bool(int(sys.argv[2]))
 expDays = int(sys.argv[3])
 filename = str(sys.argv[4])
 serverName = str(sys.argv[5])
+di = serverDataInterface(serverName)
+
 print()
 print('Please, check the data:')
 print()
@@ -34,7 +50,6 @@ print()
 if not ret == 'yes': exit()
 logFile = open("log.txt","w")
 
-di = serverDataInterface(serverName)
 
 if path.exists('temp'):
     print('The folder \\temp already exists. Probably, it contains the data from the last timeline extracted.')
@@ -92,13 +107,6 @@ for file in fileList:
             startTimeMs = int(tlObj['placeVisit']['duration']['startTimestampMs'])
             ageVisit = now-datetime.fromtimestamp(startTimeMs/1000)
             if ageVisit<expirationDays:
-                logFile.write('\r\n')
-                #logFile.write('placeId : %s \r\n'% str(tlObj['placeVisit']['location']['placeId']))
-                logFile.write('name : %s \r\n'% str(tlObj['placeVisit']['location']['name']))
-                logFile.write('address : \r\n %s \r\n'% str(tlObj['placeVisit']['location']['address']))
-                logFile.write('startTime : %s \r\n'% ms2str(startTimeMs))
-                logFile.write('endTimestamp :  %s \r\n'% ms2str(int(tlObj['placeVisit']['duration']['endTimestampMs'])))
-
                 visitsList.append({
                 'userId':userId,
                 'placeId':tlObj['placeVisit']['location']['placeId'],
@@ -108,23 +116,24 @@ for file in fileList:
                 'stopTime':tlObj['placeVisit']['duration']['endTimestampMs']
                 })
 
+print(plotUtils.plotInputVisitListShort(visitsList))
+
+logFile.write(plotUtils.plotInputVisitListShort(visitsList))
+
 if len(visitsList)>0: di.addActivities(visitsList)
 print()
 print('Number of location added:',len(visitsList))
 logFile.write('\r\n Number of location added: %d' % len(visitsList))
 print()
 if userIsPositive:
-    print('Thanks for contribuiting!')
+    print('Thanks for contribuiting.')
+    print()
 else:
     activitiesList = di.getInfectedVisitsOfUserShort(userId)
-    if len(activitiesList)>0:
-        locationFile = open("log_contact_times.txt","w")
-        for i in range(len(activitiesList)):
-            locationFile.write('\r\n ## %d\r\n'%(i+1))
-            locationFile.write('Name: %s\r\n'% activitiesList[i]['name'])
-            locationFile.write('Address: \r\n%s\r\n'% activitiesList[i]['address'])
-            locationFile.write('TimeStart: %s\r\n'% activitiesList[i]['vInfectedstartTime'])
-            locationFile.write('TimeStop: %s\r\n'% activitiesList[i]['vInfectedstopTime'])
+    print(plotUtils.plotInfectedUserVisitListShort(activitiesList))
+    locationFile = open("log_contact_times.txt","w")
+    locationFile.write(plotUtils.plotInfectedUserVisitListShort(activitiesList))
+
 
     print()
     logFile.write('\r\n Number of times this timeline crossed the timeline of a positive user: %d' % len(activitiesList))
