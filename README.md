@@ -16,7 +16,9 @@ You can see the video '2 min Pitch + DEMO (5 min)' below that illustrate how to 
 
 ## Videos
 * 2 min Pitch:
+
 [![ ](http://img.youtube.com/vi/59xqVFVcyfY/0.jpg)](http://www.youtube.com/watch?v=59xqVFVcyfY)
 
 * 2 min Pitch + DEMO (5 min)
+
 [![ ](http://img.youtube.com/vi/sEH6_WzLkY4/0.jpg)](http://www.youtube.com/watch?v=sEH6_WzLkY4)
